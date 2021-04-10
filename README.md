@@ -9,7 +9,7 @@ Simple Python tools to interact with the Republik API
 Generate a token request:
 
 ```console
-repyblik -m your@mail.com token get
+$ repyblik -m your@mail.com token get
 Using 'your@mail.com' for this session...
 You have to verify the request on the Republik API
 Please check that the verification phrase is as follows:
