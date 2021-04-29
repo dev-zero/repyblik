@@ -6,11 +6,9 @@ import requests
 import pendulum
 
 
-TokenType = Enum("TokenType", "App Email")
-TOKEN_STRING_TO_ENUM = {
-    "APP": TokenType.App,
-    "EMAIL_TOKEN": TokenType.Email,
-}
+class TokenType(Enum):
+    App = "APP"
+    Email = "EMAIL_TOKEN"
 
 
 @dataclass
@@ -54,24 +52,24 @@ class TokenDispenser:
 
         try:
             self._token = resp.cookies["connect.sid"]
-        except KeyError:
-            raise TokenFetchError("The response is missing the 'connect.sid' cookie")
+        except KeyError as exc:
+            raise TokenFetchError("The response is missing the 'connect.sid' cookie") from exc
 
         resp_body = resp.json()
 
         try:
             signin_data = resp_body["data"]["signIn"]
-        except KeyError:
-            raise TokenFetchError("The response body is missing the 'signIn' data part")
+        except KeyError as exc:
+            raise TokenFetchError("The response body is missing the 'signIn' data part") from exc
 
         expiration_date = cast(
             pendulum.DateTime, pendulum.parse(signin_data["expiresAt"])
         )
 
         try:
-            token_type = TOKEN_STRING_TO_ENUM[signin_data["tokenType"]]
-        except KeyError:
-            raise TokenFetchError("Unknown token type in response")
+            token_type = TokenType(signin_data["tokenType"])
+        except KeyError as exc:
+            raise TokenFetchError("Unknown token type in response") from exc
 
         return TokenRequestData(signin_data["phrase"], token_type, expiration_date)
 
